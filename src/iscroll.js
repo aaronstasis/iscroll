@@ -169,6 +169,7 @@ iScroll.prototype = {
 	pagesX: [], pagesY: [],
 	aniTime: null,
 	wheelZoomCount: 0,
+	revealScrollPadding: 32,
 	
 	handleEvent: function (e) {
 		var that = this;
@@ -989,6 +990,31 @@ iScroll.prototype = {
 
 		that.scrollTo(pos.left, pos.top, time);
 	},
+
+	revealElement: function(el,time) {
+		var that = this, pos;
+		var runtime = "0ms";
+		el = typeof el == 'object' ? el : that.scroller.querySelector(el);
+
+		// no element available to scroll to
+		if (!el) {
+			return;
+		}
+
+		// if el is above current screen, scroll up
+		if (el.offsetTop - revealScrollPadding <= -that.y) {
+			var y = -1 * el.offsetTop + revealScrollPadding;
+			// if would scroll past top of screen, don't
+			if (y>0) y=0;
+				that.scrollTo(0, y, time);
+		}
+		// if el is below current screen, scroll down
+		else if (el.offsetTop + el.offsetHeight + that.y + revealScrollPadding > that.wrapperH) {
+			var y = -1 * (el.offsetTop + el.offsetHeight - that.wrapperH) - revealScrollPadding; 
+			that.scrollTo(0, y, time);
+		}
+		return; 
+	}
 
 	scrollToPage: function (pageX, pageY, time) {
 		var that = this, x, y;
